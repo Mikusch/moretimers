@@ -1,5 +1,4 @@
-#ifndef _INCLUDE_SOURCEMOD_EXTENSION_PROPER_H_
-#define _INCLUDE_SOURCEMOD_EXTENSION_PROPER_H_
+#pragma once
 
 #include "smsdk_ext.h"
 
@@ -260,5 +259,3 @@ namespace MoreTimersNative
 			{nullptr, nullptr},
 	};
 }
-
-#endif // _INCLUDE_SOURCEMOD_EXTENSION_PROPER_H_

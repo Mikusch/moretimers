@@ -15,6 +15,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#if defined __moretimers_included
+	#endinput
+#endif
+
+#define __moretimers_included
+
 #pragma semicolon 1
 #pragma newdecls required
 
