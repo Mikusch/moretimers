@@ -11,58 +11,32 @@ CCountdownTimerHandler g_CountdownTimerHandler;
 MoreTimers g_MoreTimers;
 SMEXT_LINK(&g_MoreTimers);
 
-IntervalTimer* GetIntervalTimerFromHandle(cell_t cellhandle, IPluginContext* pContext)
+template<typename T>
+inline T* GetObjFromHandle(HandleType_t type, cell_t cellhandle, IPluginContext* pContext)
 {
 	Handle_t handle = (Handle_t)cellhandle;
 	HandleError hndlError;
 	HandleSecurity hndlSecurity;
 
-	hndlSecurity.pOwner = nullptr;
+	hndlSecurity.pOwner = pContext->GetIdentity();
 	hndlSecurity.pIdentity = myself->GetIdentity();
 
-	IntervalTimer* pIntervalTimer;
-	if ((hndlError = g_pHandleSys->ReadHandle(handle, g_IntervalTimerHandleType, &hndlSecurity, (void**)&pIntervalTimer)) != HandleError_None)
+	T* obj = nullptr;
+	if ((hndlError = g_pHandleSys->ReadHandle(handle, type, &hndlSecurity, (void**)&obj)) != HandleError_None)
 	{
 		if (!pContext)
 		{
-			smutils->LogError(myself, "Invalid IntervalTimer handle %x (error %d)", handle, hndlError);
+			smutils->LogError(myself, "Invalid timer handle %x (error %d)", handle, hndlError);
 		}
 		else
 		{
-			pContext->ThrowNativeError("Invalid IntervalTimer handle %x (error %d)", handle, hndlError);
+			pContext->ThrowNativeError("Invalid timer handle %x (error %d)", handle, hndlError);
 		}
 
 		return nullptr;
 	}
 
-	return pIntervalTimer;
-}
-
-CountdownTimer* GetCountdownTimerFromHandle(cell_t cellhandle, IPluginContext* pContext)
-{
-	Handle_t handle = (Handle_t)cellhandle;
-	HandleError hndlError;
-	HandleSecurity hndlSecurity;
-
-	hndlSecurity.pOwner = nullptr;
-	hndlSecurity.pIdentity = myself->GetIdentity();
-
-	CountdownTimer* pCountdownTimer;
-	if ((hndlError = g_pHandleSys->ReadHandle(handle, g_CountdownTimerHandleType, &hndlSecurity, (void**)&pCountdownTimer)) != HandleError_None)
-	{
-		if (!pContext)
-		{
-			smutils->LogError(myself, "Invalid CountdownTimer handle %x (error %d)", handle, hndlError);
-		}
-		else
-		{
-			pContext->ThrowNativeError("Invalid CountdownTimer handle %x (error %d)", handle, hndlError);
-		}
-
-		return nullptr;
-	}
-
-	return pCountdownTimer;
+	return obj;
 }
 
 void MoreTimers::SDK_OnAllLoaded()
@@ -92,7 +66,7 @@ namespace MoreTimersNative
 {
 	static cell_t IntervalTimer_Create(IPluginContext* pContext, const cell_t* params)
 	{
-		IntervalTimer* pIntervalTimer = new IntervalTimer();
+		auto* pIntervalTimer = new IntervalTimer();
 
 		if (!pIntervalTimer)
 		{
@@ -104,7 +78,7 @@ namespace MoreTimersNative
 
 	static cell_t IntervalTimer_Reset(IPluginContext* pContext, const cell_t* params)
 	{
-		IntervalTimer* pIntervalTimer = GetIntervalTimerFromHandle(params[1], pContext);
+		auto* pIntervalTimer = GetObjFromHandle<IntervalTimer>(g_IntervalTimerHandleType, params[1], pContext);
 		if (pIntervalTimer)
 		{
 			pIntervalTimer->Reset();
@@ -115,7 +89,7 @@ namespace MoreTimersNative
 
 	static cell_t IntervalTimer_Start(IPluginContext* pContext, const cell_t* params)
 	{
-		IntervalTimer* pIntervalTimer = GetIntervalTimerFromHandle(params[1], pContext);
+		auto* pIntervalTimer = GetObjFromHandle<IntervalTimer>(g_IntervalTimerHandleType, params[1], pContext);
 		if (pIntervalTimer)
 		{
 			pIntervalTimer->Start();
@@ -126,7 +100,7 @@ namespace MoreTimersNative
 
 	static cell_t IntervalTimer_Invalidate(IPluginContext* pContext, const cell_t* params)
 	{
-		IntervalTimer* pIntervalTimer = GetIntervalTimerFromHandle(params[1], pContext);
+		auto* pIntervalTimer = GetObjFromHandle<IntervalTimer>(g_IntervalTimerHandleType, params[1], pContext);
 		if (pIntervalTimer)
 		{
 			pIntervalTimer->Invalidate();
@@ -137,7 +111,7 @@ namespace MoreTimersNative
 
 	static cell_t IntervalTimer_HasStarted(IPluginContext* pContext, const cell_t* params)
 	{
-		IntervalTimer* pIntervalTimer = GetIntervalTimerFromHandle(params[1], pContext);
+		auto* pIntervalTimer = GetObjFromHandle<IntervalTimer>(g_IntervalTimerHandleType, params[1], pContext);
 		if (pIntervalTimer)
 		{
 			return pIntervalTimer->HasStarted();
@@ -148,7 +122,7 @@ namespace MoreTimersNative
 
 	static cell_t IntervalTimer_GetElapsedTimed(IPluginContext* pContext, const cell_t* params)
 	{
-		IntervalTimer* pIntervalTimer = GetIntervalTimerFromHandle(params[1], pContext);
+		auto* pIntervalTimer = GetObjFromHandle<IntervalTimer>(g_IntervalTimerHandleType, params[1], pContext);
 		if (pIntervalTimer)
 		{
 			return sp_ftoc(pIntervalTimer->GetElapsedTime());
@@ -159,7 +133,7 @@ namespace MoreTimersNative
 
 	static cell_t IntervalTimer_IsLessThan(IPluginContext* pContext, const cell_t* params)
 	{
-		IntervalTimer* pIntervalTimer = GetIntervalTimerFromHandle(params[1], pContext);
+		auto* pIntervalTimer = GetObjFromHandle<IntervalTimer>(g_IntervalTimerHandleType, params[1], pContext);
 		if (pIntervalTimer)
 		{
 			return pIntervalTimer->IsLessThan(sp_ctof(params[2]));
@@ -170,7 +144,7 @@ namespace MoreTimersNative
 
 	static cell_t IntervalTimer_IsGreaterThan(IPluginContext* pContext, const cell_t* params)
 	{
-		IntervalTimer* pIntervalTimer = GetIntervalTimerFromHandle(params[1], pContext);
+		auto* pIntervalTimer = GetObjFromHandle<IntervalTimer>(g_IntervalTimerHandleType, params[1], pContext);
 		if (pIntervalTimer)
 		{
 			return pIntervalTimer->IsGreaterThan(sp_ctof(params[2]));
@@ -181,7 +155,7 @@ namespace MoreTimersNative
 
 	static cell_t CountdownTimer_Create(IPluginContext* pContext, const cell_t* params)
 	{
-		CountdownTimer* pCountdownTimer = new CountdownTimer();
+		auto* pCountdownTimer = new CountdownTimer();
 
 		if (!pCountdownTimer)
 		{
@@ -193,7 +167,7 @@ namespace MoreTimersNative
 
 	static cell_t CountdownTimer_Reset(IPluginContext* pContext, const cell_t* params)
 	{
-		CountdownTimer* pCountdownTimer = GetCountdownTimerFromHandle(params[1], pContext);
+		auto* pCountdownTimer = GetObjFromHandle<CountdownTimer>(g_CountdownTimerHandleType, params[1], pContext);
 		if (pCountdownTimer)
 		{
 			pCountdownTimer->Reset();
@@ -204,7 +178,7 @@ namespace MoreTimersNative
 
 	static cell_t CountdownTimer_Start(IPluginContext* pContext, const cell_t* params)
 	{
-		CountdownTimer* pCountdownTimer = GetCountdownTimerFromHandle(params[1], pContext);
+		auto* pCountdownTimer = GetObjFromHandle<CountdownTimer>(g_CountdownTimerHandleType, params[1], pContext);
 		if (pCountdownTimer)
 		{
 			pCountdownTimer->Start(sp_ctof(params[2]));
@@ -215,7 +189,7 @@ namespace MoreTimersNative
 
 	static cell_t CountdownTimer_Invalidate(IPluginContext* pContext, const cell_t* params)
 	{
-		CountdownTimer* pCountdownTimer = GetCountdownTimerFromHandle(params[1], pContext);
+		auto* pCountdownTimer = GetObjFromHandle<CountdownTimer>(g_CountdownTimerHandleType, params[1], pContext);
 		if (pCountdownTimer)
 		{
 			pCountdownTimer->Invalidate();
@@ -226,7 +200,7 @@ namespace MoreTimersNative
 
 	static cell_t CountdownTimer_HasStarted(IPluginContext* pContext, const cell_t* params)
 	{
-		CountdownTimer* pCountdownTimer = GetCountdownTimerFromHandle(params[1], pContext);
+		auto* pCountdownTimer = GetObjFromHandle<CountdownTimer>(g_CountdownTimerHandleType, params[1], pContext);
 		if (pCountdownTimer)
 		{
 			return pCountdownTimer->HasStarted();
@@ -237,7 +211,7 @@ namespace MoreTimersNative
 
 	static cell_t CountdownTimer_IsElapsed(IPluginContext* pContext, const cell_t* params)
 	{
-		CountdownTimer* pCountdownTimer = GetCountdownTimerFromHandle(params[1], pContext);
+		auto* pCountdownTimer = GetObjFromHandle<CountdownTimer>(g_CountdownTimerHandleType, params[1], pContext);
 		if (pCountdownTimer)
 		{
 			return pCountdownTimer->IsElapsed();
@@ -248,7 +222,7 @@ namespace MoreTimersNative
 
 	static cell_t CountdownTimer_GetElapsedTime(IPluginContext* pContext, const cell_t* params)
 	{
-		CountdownTimer* pCountdownTimer = GetCountdownTimerFromHandle(params[1], pContext);
+		auto* pCountdownTimer = GetObjFromHandle<CountdownTimer>(g_CountdownTimerHandleType, params[1], pContext);
 		if (pCountdownTimer)
 		{
 			return sp_ftoc(pCountdownTimer->GetElapsedTime());
@@ -259,7 +233,7 @@ namespace MoreTimersNative
 
 	static cell_t CountdownTimer_GetRemainingTime(IPluginContext* pContext, const cell_t* params)
 	{
-		CountdownTimer* pCountdownTimer = GetCountdownTimerFromHandle(params[1], pContext);
+		auto* pCountdownTimer = GetObjFromHandle<CountdownTimer>(g_CountdownTimerHandleType, params[1], pContext);
 		if (pCountdownTimer)
 		{
 			return sp_ftoc(pCountdownTimer->GetRemainingTime());
@@ -270,7 +244,7 @@ namespace MoreTimersNative
 
 	static cell_t CountdownTimer_GetCountdownDuration(IPluginContext* pContext, const cell_t* params)
 	{
-		CountdownTimer* pCountdownTimer = GetCountdownTimerFromHandle(params[1], pContext);
+		auto* pCountdownTimer = GetObjFromHandle<CountdownTimer>(g_CountdownTimerHandleType, params[1], pContext);
 		if (pCountdownTimer)
 		{
 			return sp_ftoc(pCountdownTimer->GetCountdownDuration());

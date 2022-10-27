@@ -257,7 +257,7 @@ namespace MoreTimersNative
 			{"CountdownTimer.GetRemainingTime", CountdownTimer_GetRemainingTime},
 			{"CountdownTimer.GetCountdownDuration", CountdownTimer_GetCountdownDuration},
 
-			{NULL, NULL},
+			{nullptr, nullptr},
 	};
 }
 
