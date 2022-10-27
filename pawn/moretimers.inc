@@ -147,3 +147,15 @@ methodmap CountdownTimer < Handle
 	 */
 	public native float GetCountdownDuration();
 }
+
+public Extension __ext_moretimers = 
+{
+	name = "moretimers",
+	file = "moretimers.ext",
+	autoload = 1,
+#if defined REQUIRE_EXTENSIONS
+	required = 1,
+#else
+	required = 0,
+#endif
+};
