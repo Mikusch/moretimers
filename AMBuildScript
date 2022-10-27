@@ -438,7 +438,7 @@ Extension.configure()
 
 # Add additional buildscripts here
 BuildScripts = [
-  'AMBuilder',
+  'extension/AMBuilder',
 ]
 
 if builder.backend == 'amb2':
